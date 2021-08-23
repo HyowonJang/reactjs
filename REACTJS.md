@@ -55,4 +55,15 @@ function App() {
 - component 이름은 대문자로 시작
 - props 안에 있는 fav를 가져오기 -> `props.fav == {fav}`
 
-## 2.2 Dynamic Component Generation
+## 2.4 Protection with PropTypes
+- 전달받은 props가 원하는 props인지를 확인하기 위해 prop-types 사용
+```
+npm i prop-types
+```
+```javascript
+Food.propTypes = {
+  name: PropTypes.string.isRequired,
+  picture: PropTypes.string.isRequired,
+  rating: PropTypes.number.isRequired
+}
+```
