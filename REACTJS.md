@@ -122,3 +122,90 @@ add = () => {
     - 다른 페이지로 이탈하거나 새로고침을 하거나 해서 component가 unmount될 때 호출됨
 
 - setState() 호출 -> component 호출 -> render 호출 -> 업데이트 완료 후 componentDidUpdate() 실행
+
+## 3.3 Planning the Movie Component
+```javascript
+// 6초 뒤에 isLoading이 바뀌고 setState가 render를 호출하여 data가 fetching됨
+class App extends React.Component{
+  state = {
+    isLoading: true,
+    movies: []
+  };
+  componentDidMount(){
+    setTimeout(() => {
+      this.setState({isLoading: false});
+    }, 6000);
+  }
+  render() {
+    const { isLoading } = this.state;
+    return <div>{isLoading ? "Loading..." : "We are ready"}</div>;
+  }
+}
+```
+
+## 4.0 Fetching Movies from API
+- axios: data를 fetch함(가져옴)
+- 비동기 함수
+  - async: 함수에게 기다려야 한다는걸 알려준다
+  - await: 기다려야 할 것 앞에 붙여준다
+```javascript
+getMovies = async () => {
+    const movies = await axios.get('https://yts-proxy.now.sh/list_movies.json')
+  }
+```
+
+## 4.1 Rendering the Movies
+```javascript
+state = {
+  isLoading: true,
+  movies: []
+};
+getMovies = async () => {
+  const {data: {data: {movies}}} = await axios.get('https://yts-proxy.now.sh/list_movies.json');
+  // this.setState({movies:movies})
+  // 이렇게 해도 작동함
+  this.setState({movies})
+}
+// setState의 왼쪽 movies는 setState의 movies고, 오른쪽 movies는 axios온 movies
+```
+
+- React에서 function, class는 **화면에 어떻게 뿌려줄지**를 정의한다
+```javascript
+function Food({name, picture}){
+  return <div>
+    <h2>I like {name}</h2>
+    <img src={picture} />
+  </div>
+}
+
+const foodILike = [
+  {
+    name: "cake",
+    image: "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
+  },
+  {
+    name: "icecream",
+    image: "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
+  },
+  {
+    name: "chicken",
+    image: "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
+  },
+]
+
+function App() {
+  return (
+    <div>
+      {foodILike.map(kind => (
+        <Food name={kind.name} picture={kind.image}/>
+      ))}
+    </div>
+  );
+}
+
+// 이 부분이 함수에 값을 전달하는 것이고, 함수는 그 값을 받아 정의된 대로 화면에 그린다
+<Food name={kind.name} picture={kind.image}/>
+```
+
+- key를 출력하려고 했을 때 id와 같은 값을 전달받았음에도 화면에 출력되지 않음
+>Warning: Movie: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop.
