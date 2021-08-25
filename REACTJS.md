@@ -68,6 +68,7 @@ Food.propTypes = {
 }
 ```
 
+2021.08.25
 ## 3.0 Class Components and State
 
 - `function App() {}` -> `class App extends React.Component {}`
@@ -209,3 +210,27 @@ function App() {
 
 - key를 출력하려고 했을 때 id와 같은 값을 전달받았음에도 화면에 출력되지 않음
 >Warning: Movie: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop.
+
+- map function은 항상 key를 달라고 함
+- map function은 index도 우리한테 넘겨줘서 마음껏 쓸 수 있음
+```javascript
+// 직접 값을 key로 넘겨준 경우
+{movies.map(movie => (
+  <Movie
+    key={movie.id}
+    id={movie.id}
+    year={movie.year}
+    title={movie.title}
+    summary={movie.summary}
+    poster={movie.medium_cover_image}
+    genres={movie.genres}
+  />
+))}
+// map의 index를 key로 넘겨준 경우
+{genres.map((genre, index) => (
+    <li key={index} className="genres__genre">
+        {genre}
+    </li>
+))}
+
+```
