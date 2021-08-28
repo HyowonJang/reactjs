@@ -108,6 +108,8 @@ add = () => {
 ```
 
 ## 3.2 Component Life Cycle
+>클래스 컴포넌트는 componentDidMount, getDerivedStateFromProps등의 React Component의 라이프사이클을 사용할 수 있지만 기존의 함수형 컴포넌트는 이러한 라이프사이클을 사용할 수 없었습니다. 그래서 온전히 render 만 구현할 수 있었다고 볼 수 있습니다.
+>출처: https://boxfoxs.tistory.com/395 [박스여우 - BoxFox]
 - render 전후로 호출되는 function들
 - Mounting: component-여기서는 함수를 의미-의 태어남
   - constructor()
@@ -234,3 +236,149 @@ function App() {
 ))}
 
 ```
+
+## 5.0 Deploying to Github Pages
+- gh-pages 설치
+```
+npm i gh-pages
+```
+- pakage.json에 "homepage" 추가
+```
+"homepage": "https://hyowonjang.github.io/reactjs"
+```
+- pakage.json의 "scripts"에 "deploy", "predeploy" 추가
+```
+"deploy": "gh-pages -d build",
+"predeploy": "npm run build"
+```
+- npm deploy를 실행하면 알아서 자동으로 predeploy -> build -> deploy로 실행됨
+```
+npm run deploy
+```
+- `npm run build`를 실행하면 build 폴더를 얻을 수 있음
+- 그 다음부터는 npm start를 하지 않아도 homepage 주소에서 접근가능함
+  
+
+## 6.0 Getting Ready for the Router
+- 이 강의에서는 하나의 페이지로 되어있는 homepage를 두개의 페이지로 interactive하게 되도록 만들어본다
+- 네비게이션 바를 만들어주는 패키지 
+```
+npm install react-router-dom
+```
+- src 폴더 안에
+  - components 폴더를 만들어 Movie.css, Movie.js를 넣어두고 (routing되는 js파일에서 쓰일 component들)
+  - routes 폴더를 만들어 About.js, Home.js 파일을 만듦 (직접적으로 routing의 대상이 되는 페이지들)
+    - homepage에서 About 페이지로 가거나 Home 페이지로 가게되는 것
+- 원래 App.js에 있던것을 Home.js로 보내고 App.js는 개편!
+
+## 6.1 Building the Router
+- App.js를 어떻게 개편하냐면 여기에 router를 넣어주어서 /home -> Home.js, /about -> About.js로 가게 해줄 것
+  - router는 여러가지가 있는데 HashRouter, BrowserRouter 등이 있음, BrowserRouter는 /#/ 이런 이상한게 url에 없지만 github pages 설정이 어렵다고 함
+- App component에서 HashRouter를 리턴하고, 그 안에는 Route가 들어가는데 Route에는 두가지 중요한 props가 있음
+  1. path: 이동할 url 경로
+  2. component: path로 이동했을 때 보여줄 component
+```javascript
+import React from "react";
+import { HashRouter, Route } from "react-router-dom";
+import About from "./routes/About";
+
+function App(){
+  return (
+    <HashRouter>
+      <Route path="/about" component={About /}>
+    </HashRouter>
+  );
+}
+
+export default App;
+```
+- Route의 path에 "/home"인 게 있고 "/home/introduction"인게 있으면 리액트는 후자를 렌더링할 때 전자도 함께 렌더링 함
+  - "/home/introduction"에 "/home"도 매칭되기 때문
+- 같은 경우로 path에 "/"인게 있고 "/about"인게 있으면 "/about"으로 이동했을 때 "/"인 것도 함께 둘다 렌더링해서 보여줌
+- 이를 방지하기 위해 위의 경우에서는 "/home"에, 아래 경우에서는 "/"에 exact라는 props를 추가해줌
+```javascript
+<Route path="/" exact={true} component={Home} />
+```
+
+## 6.2 Building the Navigation
+- Navigation은 About, Home 모든 페이지에 나타나야 하기 때문에 components 폴더에 <Navigation>을 추가하여 App.js의 <HashRouter> 안에 넣어줌
+- Navigation.js의 Navigation 컴포넌트는 아래와 같이 작성할 수 있는데 문제가 생김
+  - 이래의 a href는 문서를 연결하는 html로 react를 죽이고 그냥 페이지를 새로고침하게 되어 동작하지 않음
+```javascript
+function Navigation() {
+  return (
+    <div>
+      <a href="/">Home</a>
+      <a href="/About">About</a>
+    </div>
+  )
+}
+```
+  - 그래서 a href 대신에 link라는 것을 사용함, link에서는 href말고 to임
+  - Link는 (-> Navigation component -> App.js) Router 안에 있어야 동작함
+```javascript
+import { Link } from "react-router-dom";
+
+function Navigation() {
+  return (
+    <div>
+      <Link to="/">Home</Link>
+      <Link to="/About">About</Link>
+    </div>
+  );
+}
+```
+
+## 6.3 Sharing Props Between Routes
+- Route는 components들에 알아서 props를 넣어주고 우리는 이걸 활용할 수 있음
+  - ex) About component에는 아무것도 설정한 props(parameters)가 없지만 콘솔에 찍어보면 history, location, match, staticContext 같은걸 보내고 있음
+- 앞에서는 Link의 to props에 "/"와 같은 value를 전달했지만 더 많은 정보를 담은 object를 전달할 수도 있음
+- Link는 클릭 등으로 다른 페이지로 연결해줘야 할 때 해당 컴포넌트에서 사용한다
+```javascript
+// example
+<Link to={{
+      pathname: "/courses",
+      search: "?sort=name",
+      hash: "#the-hash",
+      state: { fromDashboard: true }
+  }}
+/>
+```
+```javascript
+<Link to={{
+      pathname: "/about",
+      state: { fromNavigation: true }
+  }}
+/>
+```
+- Home에서 영화를 클릭하면 영화 상세 페이지로 가게하기 위해
+  1. Movie 정보를 Home.js에서 map 함수에서 Movie component를 호출함으로써 하나씩 출력해주고 있었는데 그 Movie component에 Link를 씌워줌으로써 클릭하면 "/movie-detail"로 넘어가도록 한다
+  2. 또한 Link의 props를 통해 "/movie-detial"로 링크될 때 state 정보를 함께 넘겨준다
+  3. App.js에 movie_detail이라는 경로를 추가해주고 Detail이라는 component를 넣어준다
+  4. Detail component를 만들어준다
+
+## 6.4 Redirecting
+- 2번에서 넘겨준 state 정보는 Router가 알아서 넘겨주는 props의 location안에 state로 있음
+- 만약 "/movie-detial"로 클릭없이 다이렉트로 오면 정보를 넘겨받을 기회가 없었기 때문에 state가 undefined로 뜸
+- 이를 핸들링하기 위해서 class component의 componentDidMount 함수를 이용하여 state가 undefined면 리다이렉트하도록 만들어주자
+  1. componentDidMount는 class component에서만 사용할 수 있기 때문에 function에서 class로 변경해줌!
+  2. Detail 컴포넌트는 Route로부터 넘겨받은 props를 가지고 있는데 그 props 중 history의 push는 url을 바꿔줄 수 있으므로 이 state를 바꿔주자
+
+```javascript
+class Detail extends React.Component {
+  componentDidMount() {
+    const { location, history } = this.props;
+    if (location.state == undefined) {
+      history.push("/");
+    }
+  }
+  render() {
+    return <span>hello</span>'
+  }
+}
+export default Detail;
+```
+
+- class 컴포넌트에서 render()가 먼저 실행된 다음에 componentDidMount()가 실행됨
+- componentDidMount()에서는 location.state == undifined인 경우를 처리해주었지만 render에서는 처리해주지 않아서 먼저 에러가날 수 있으므로 동일하게 if else문으로 핸들링해주어야 함
+- 어쨌거나 이 정보들은 Detail 컴포넌트가 Route를 통해 실행되기 때문에 전달되어 오는 것임
