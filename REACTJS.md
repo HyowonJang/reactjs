@@ -382,3 +382,30 @@ export default Detail;
 - class 컴포넌트에서 render()가 먼저 실행된 다음에 componentDidMount()가 실행됨
 - componentDidMount()에서는 location.state == undifined인 경우를 처리해주었지만 render에서는 처리해주지 않아서 먼저 에러가날 수 있으므로 동일하게 if else문으로 핸들링해주어야 함
 - 어쨌거나 이 정보들은 Detail 컴포넌트가 Route를 통해 실행되기 때문에 전달되어 오는 것임
+
+## Etc.
+- 이 앱의 메인이 되는 구조는
+  - Movie -> Home() -> App (Routing)
+  - App.js -> Home.js -> Movie.js
+    1. App.js: Home, About, Detail의 components를 routing
+    1. Home.js: API에서 데이터 받은 후 Movie component를 호출하여 데이터 전달
+    1. Movie.js: 실제적으로 Home에서 보여지는 화면을 그리는 component
+- routing
+  - App.js 주소 routing: 'react-router-dom'의 HashRouter, Route 사용
+  - Movie.js 영역 클릭시 linking: 'react-router-dom'의 Link 사용
+    - Link에서 state로 데이터 넘겨줄 수 있음
+- API 주소: 'https://yts-proxy.now.sh/list_movies.json?sort_by=rating'
+- 데이터를 가져오는(fetch) 라이브러리: axios
+- 데이터를 다 가져올 때까지 기다려주는(비동기) 기능: async, await
+- props type 체크: 'prop-types'
+
+- '<span>'
+><span> 태그는 HTML 문서에서 인라인 요소(inline-element)들을 하나로 묶을 때 사용합니다.
+><span> 요소는 그 자체만으로는 어떠한 의미도 가지지 않지만, class나 id와 같은 전역 속성과 함께 사용하여 스타일링을 위해 요소들을 그룹화하거나 lang 속성과 같은 속성값을 공유하는 데 유용하게 사용할 수 있습니다.
+><span> 요소는 <div> 요소와 매우 비슷하게 사용되지만, <div> 요소는 블록 타입의 요소인데 반해 <span> 요소는 인라인 타입의 요소입니다.
+
+- Home.js에서 render()가 실행되고 그다음에 componentDidMount()가 실행되는데
+  - render()가 처음 실행될 때는 최초 state 상태에 따라 isLoading: true 상태
+  - componentDidMount()에서 getMovies()를 호출해서 실행하면서 isLoading: false로 업데이트됨
+  - setState()가 호출되면 -> component가 호출되고 -> render()가 호출되게 되어있음
+  - 결과적으로 isLoading: false이므로 Movie 컴포넌트를 그려내게 되는 것
