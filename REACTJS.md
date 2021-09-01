@@ -409,3 +409,9 @@ export default Detail;
   - componentDidMount()에서 getMovies()를 호출해서 실행하면서 isLoading: false로 업데이트됨
   - setState()가 호출되면 -> component가 호출되고 -> render()가 호출되게 되어있음
   - 결과적으로 isLoading: false이므로 Movie 컴포넌트를 그려내게 되는 것
+
+```javascript
+npm i prop-types
+npm i axios
+npm install react-router-dom
+```
