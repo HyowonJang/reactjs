@@ -1,5 +1,3 @@
-2021.08.23
-
 ## 1.0 Creating your first React App
 
 - webpack, Babel -> create-react-app
